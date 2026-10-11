@@ -1,24 +1,17 @@
 import mysql.connector
-from mysql.connector import Error
 
-class Database:
-    def __init__(self):
-        self.host = "localhost"
-        self.db_name = "db_reservasi_badminton"
-        self.username = "root"
-        self.password = ""
-        self.conn = None
-
-    def get_connection(self):
-        try:
-            self.conn = mysql.connector.connect(
-                host=self.host,
-                database=self.db_name,
-                user=self.username,
-                password=self.password
-            )
-            if self.conn.is_connected():
-                return self.conn
-        except Error as e:
-            print(f"Koneksi Database Gagal: {e}")
-            return None
+def get_connection():
+    """
+    Mengelola koneksi utama ke basis data MySQL Laragon / XAMPP.
+    """
+    try:
+        connection = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="",
+            database="db_reservasi_badminton"
+        )
+        return connection
+    except mysql.connector.Error as err:
+        print(f"[Error Database] Gagal terhubung ke MySQL: {err}")
+        return None

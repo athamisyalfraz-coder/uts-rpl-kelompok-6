@@ -1,3 +1,6 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import customtkinter as ctk
 from tkinter import ttk, messagebox
 from controllers.reservasi_controller import ReservasiController
@@ -7,8 +10,8 @@ class ReservasiView(ctk.CTk):
         super().__init__()
         self.title("Sistem Informasi Reservasi Lapangan Badminton")
         self.geometry("1000x560")
+        ctk.set_appearance_mode("Dark")
 
-        # Inisialisasi Controller
         self.controller = ReservasiController()
 
         # Layout Grid Utama (Kolom 0: Form Kiri, Kolom 1: Tabel Kanan)
@@ -16,139 +19,134 @@ class ReservasiView(ctk.CTk):
         self.grid_columnconfigure(1, weight=2)
         self.grid_rowconfigure(0, weight=1)
 
-        # ===== FRAME KIRI: FORM INPUT RESERVASI =====
-        self.frame_kiri = ctk.CTkFrame(self)
-        self.frame_kiri.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        # --- FRAME FORM (KIRI) ---
+        self.frame_form = ctk.CTkFrame(self)
+        self.frame_form.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        ctk.CTkLabel(self.frame_kiri, text="Form Data Reservasi", font=("Arial", 16, "bold")).pack(pady=10)
+        ctk.CTkLabel(self.frame_form, text="Form Reservasi", font=ctk.CTkFont(size=16, weight="bold")).pack(pady=10)
 
-        self.entry_user = ctk.CTkEntry(self.frame_kiri, placeholder_text="ID User (id_user)")
-        self.entry_user.pack(pady=4, padx=15, fill="x")
+        self.entry_user = ctk.CTkEntry(self.frame_form, placeholder_text="ID User (misal: 1)")
+        self.entry_user.pack(pady=5, fill="x", padx=10)
 
-        self.entry_lapangan = ctk.CTkEntry(self.frame_kiri, placeholder_text="ID Lapangan (id_lapangan)")
-        self.entry_lapangan.pack(pady=4, padx=15, fill="x")
+        self.entry_lapangan = ctk.CTkEntry(self.frame_form, placeholder_text="ID Lapangan (misal: 1)")
+        self.entry_lapangan.pack(pady=5, fill="x", padx=10)
 
-        self.entry_tanggal = ctk.CTkEntry(self.frame_kiri, placeholder_text="Tanggal (YYYY-MM-DD)")
-        self.entry_tanggal.pack(pady=4, padx=15, fill="x")
+        self.entry_tanggal = ctk.CTkEntry(self.frame_form, placeholder_text="Tanggal (YYYY-MM-DD)")
+        self.entry_tanggal.pack(pady=5, fill="x", padx=10)
 
-        self.entry_jam_mulai = ctk.CTkEntry(self.frame_kiri, placeholder_text="Jam Mulai (HH:MM:SS)")
-        self.entry_jam_mulai.pack(pady=4, padx=15, fill="x")
+        self.entry_jam_mulai = ctk.CTkEntry(self.frame_form, placeholder_text="Jam Mulai (HH:MM:SS)")
+        self.entry_jam_mulai.pack(pady=5, fill="x", padx=10)
 
-        self.entry_jam_selesai = ctk.CTkEntry(self.frame_kiri, placeholder_text="Jam Selesai (HH:MM:SS)")
-        self.entry_jam_selesai.pack(pady=4, padx=15, fill="x")
+        self.entry_jam_selesai = ctk.CTkEntry(self.frame_form, placeholder_text="Jam Selesai (HH:MM:SS)")
+        self.entry_jam_selesai.pack(pady=5, fill="x", padx=10)
 
-        self.entry_total = ctk.CTkEntry(self.frame_kiri, placeholder_text="Total Harga (Decimal)")
-        self.entry_total.pack(pady=4, padx=15, fill="x")
+        self.entry_total = ctk.CTkEntry(self.frame_form, placeholder_text="Total Harga (Rp)")
+        self.entry_total.pack(pady=5, fill="x", padx=10)
 
-        self.combo_status = ctk.CTkOptionMenu(
-            self.frame_kiri, 
-            values=["menunggu_pembayaran", "dikonfirmasi", "dibatalkan", "selesai"]
-        )
-        self.combo_status.pack(pady=6, padx=15, fill="x")
+        self.combo_status = ctk.CTkOptionMenu(self.frame_form, values=["menunggu_pembayaran", "dikonfirmasi", "selesai", "dibatalkan"])
+        self.combo_status.set("menunggu_pembayaran")
+        self.combo_status.pack(pady=5, fill="x", padx=10)
 
-        # Tombol Aksi
-        self.btn_simpan = ctk.CTkButton(self.frame_kiri, text="Simpan Data", fg_color="green", command=self.simpan_action)
-        self.btn_simpan.pack(pady=6, padx=15, fill="x")
+        self.btn_simpan = ctk.CTkButton(self.frame_form, text="Simpan Reservasi", fg_color="#28A745", hover_color="#218838", command=self.simpan_data)
+        self.btn_simpan.pack(pady=8, fill="x", padx=10)
 
-        self.btn_update = ctk.CTkButton(self.frame_kiri, text="Perbarui Data (Update)", fg_color="blue", command=self.update_action)
-        self.btn_update.pack(pady=4, padx=15, fill="x")
+        self.btn_update = ctk.CTkButton(self.frame_form, text="Perbarui Data", fg_color="#007BFF", hover_color="#0069D9", command=self.update_data)
+        self.btn_update.pack(pady=4, fill="x", padx=10)
 
-        self.btn_delete = ctk.CTkButton(self.frame_kiri, text="Hapus Data (Delete)", fg_color="red", command=self.delete_action)
-        self.btn_delete.pack(pady=4, padx=15, fill="x")
+        self.btn_delete = ctk.CTkButton(self.frame_form, text="Hapus Data", fg_color="#DC3545", hover_color="#C82333", command=self.delete_data)
+        self.btn_delete.pack(pady=4, fill="x", padx=10)
 
-        # ===== FRAME KANAN: TABEL DAFTAR RESERVASI =====
-        self.frame_kanan = ctk.CTkFrame(self)
-        self.frame_kanan.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+        # --- FRAME TABEL (KANAN) ---
+        self.frame_table = ctk.CTkFrame(self)
+        self.frame_table.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
-        ctk.CTkLabel(self.frame_kanan, text="Daftar Transaksi Reservasi", font=("Arial", 16, "bold")).pack(pady=10)
+        cols = ("ID", "User", "Lapangan", "Tanggal", "Jam", "Total", "Status")
+        self.tree = ttk.Treeview(self.frame_table, columns=cols, show="headings")
+        
+        for c in cols:
+            self.tree.heading(c, text=c)
+        
+        self.tree.column("ID", width=30)
+        self.tree.column("User", width=80)
+        self.tree.column("Lapangan", width=90)
+        self.tree.column("Tanggal", width=90)
+        self.tree.column("Jam", width=110)
+        self.tree.column("Total", width=90)
+        self.tree.column("Status", width=120)
 
-        kolom = ("id_reservasi", "id_user", "id_lapangan", "tanggal_reservasi", "jam_mulai", "jam_selesai", "total_harga", "status_reservasi")
-        self.tabel = ttk.Treeview(self.frame_kanan, columns=kolom, show="headings", height=16)
+        self.tree.pack(fill="both", expand=True, padx=5, pady=5)
+        self.tree.bind("<<TreeviewSelect>>", self.on_select)
 
-        # Header Tabel
-        self.tabel.heading("id_reservasi", text="ID")
-        self.tabel.heading("id_user", text="User")
-        self.tabel.heading("id_lapangan", text="Lapangan")
-        self.tabel.heading("tanggal_reservasi", text="Tanggal")
-        self.tabel.heading("jam_mulai", text="Mulai")
-        self.tabel.heading("jam_selesai", text="Selesai")
-        self.tabel.heading("total_harga", text="Total (Rp)")
-        self.tabel.heading("status_reservasi", text="Status")
-
-        # Lebar Kolom
-        self.tabel.column("id_reservasi", width=35, anchor="center")
-        self.tabel.column("id_user", width=70, anchor="center")
-        self.tabel.column("id_lapangan", width=80, anchor="center")
-        self.tabel.column("tanggal_reservasi", width=85, anchor="center")
-        self.tabel.column("jam_mulai", width=65, anchor="center")
-        self.tabel.column("jam_selesai", width=65, anchor="center")
-        self.tabel.column("total_harga", width=85, anchor="center")
-        self.tabel.column("status_reservasi", width=120, anchor="center")
-
-        self.tabel.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # Muat Data Awal dari Database saat Aplikasi Dibuka
         self.load_data()
 
     def load_data(self):
-        # Bersihkan baris lama di tabel GUI
-        for item in self.tabel.get_children():
-            self.tabel.delete(item)
-
-        # Ambil data terbaru dari MySQL lewat Controller
-        daftar_reservasi = self.controller.index()
-        for r in daftar_reservasi:
-            self.tabel.insert("", "end", values=(
-                r['id_reservasi'],
-                r['nama_user'],
-                r['nama_lapangan'],
-                r['tanggal_reservasi'],
-                r['jam_mulai'],
-                r['jam_selesai'],
-                r['total_harga'],
-                r['status_reservasi']
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        
+        data = self.controller.get_all_reservasi()
+        for d in data:
+            jam_str = f"{d['jam_mulai']}-{d['jam_selesai']}"
+            user_disp = d.get('nama_user') or f"User {d['id_user']}"
+            lap_disp = d.get('nama_lapangan') or f"Lap {d['id_lapangan']}"
+            self.tree.insert("", "end", values=(
+                d['id_reservasi'], user_disp, lap_disp,
+                str(d['tanggal_reservasi']), jam_str,
+                f"Rp{d['total_harga']:,.2f}", d['status_reservasi']
             ))
 
-    def simpan_action(self):
-        # 1. Ambil nilai dari kolom input
-        id_user = self.entry_user.get()
-        id_lapangan = self.entry_lapangan.get()
-        tanggal = self.entry_tanggal.get()
-        jam_mulai = self.entry_jam_mulai.get()
-        jam_selesai = self.entry_jam_selesai.get()
-        total = self.entry_total.get()
-        status = self.combo_status.get()
+    def on_select(self, event):
+        selected = self.tree.selection()
+        if selected:
+            item = self.tree.item(selected[0])
+            val = item['values']
+            self.selected_id = val[0]
 
-        # Validasi input kosong
-        if not (id_user and id_lapangan and tanggal and jam_mulai and jam_selesai and total):
-            messagebox.showwarning("Peringatan", "Semua kolom form wajib diisi!")
-            return
+    def simpan_data(self):
+        id_u = self.entry_user.get()
+        id_l = self.entry_lapangan.get()
+        tgl = self.entry_tanggal.get()
+        jm = self.entry_jam_mulai.get()
+        js = self.entry_jam_selesai.get()
+        tot = self.entry_total.get()
+        st = self.combo_status.get()
 
-        # 2. Simpan ke Database via Controller
-        berhasil = self.controller.tambah_reservasi(
-            id_user, id_lapangan, tanggal, jam_mulai, jam_selesai, total, status
-        )
-
-        if berhasil:
-            messagebox.showinfo("Sukses", "Data reservasi berhasil disimpan!")
-            self.load_data()   # Refresh tampilan tabel
-            self.clear_form()  # Bersihkan form input
+        success, msg = self.controller.add_reservasi(id_u, id_l, tgl, jm, js, tot, st)
+        if success:
+            messagebox.showinfo("Sukses", msg)
+            self.load_data()
         else:
-            messagebox.showerror("Gagal", "Gagal menyimpan data ke database! Pastikan ID User & ID Lapangan tersedia di DB.")
+            messagebox.showerror("Error", msg)
 
-    def update_action(self):
-        messagebox.showinfo("Informasi", "Fitur Update berhasil dipicu.")
+    def update_data(self):
+        if not hasattr(self, 'selected_id'):
+            messagebox.showwarning("Peringatan", "Pilih data di tabel terlebih dahulu!")
+            return
+        id_u = self.entry_user.get()
+        id_l = self.entry_lapangan.get()
+        tgl = self.entry_tanggal.get()
+        jm = self.entry_jam_mulai.get()
+        js = self.entry_jam_selesai.get()
+        tot = self.entry_total.get()
+        st = self.combo_status.get()
 
-    def delete_action(self):
-        messagebox.showwarning("Peringatan", "Fitur Delete berhasil dipicu.")
+        success, msg = self.controller.update_reservasi(self.selected_id, id_u, id_l, tgl, jm, js, tot, st)
+        if success:
+            messagebox.showinfo("Sukses", msg)
+            self.load_data()
+        else:
+            messagebox.showerror("Error", msg)
 
-    def clear_form(self):
-        self.entry_user.delete(0, 'end')
-        self.entry_lapangan.delete(0, 'end')
-        self.entry_tanggal.delete(0, 'end')
-        self.entry_jam_mulai.delete(0, 'end')
-        self.entry_jam_selesai.delete(0, 'end')
-        self.entry_total.delete(0, 'end')
+    def delete_data(self):
+        if not hasattr(self, 'selected_id'):
+            messagebox.showwarning("Peringatan", "Pilih data di tabel terlebih dahulu!")
+            return
+        if messagebox.askyesno("Konfirmasi", "Yakin ingin menghapus reservasi ini?"):
+            success, msg = self.controller.delete_reservasi(self.selected_id)
+            if success:
+                messagebox.showinfo("Sukses", msg)
+                self.load_data()
+            else:
+                messagebox.showerror("Error", msg)
 
 if __name__ == "__main__":
     app = ReservasiView()

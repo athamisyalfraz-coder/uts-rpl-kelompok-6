@@ -1,23 +1,25 @@
+import sys, os
+sys.path.append(os.path.dirname(__file__))
+
+from config.database import get_connection
 from models.reservasi_model import ReservasiModel
 
-model = ReservasiModel()
+def test_database():
+    print("=== PENGUJIAN KONEKSI DATABASE ===")
+    conn = get_connection()
+    if conn and conn.is_connected():
+        print("✓ Koneksi ke database MySQL Laragon BERHASIL!")
+        conn.close()
+    else:
+        print("✗ Koneksi database GAGAL!")
 
-print("=== PENGUJIAN 1: TAMBAH RESERVASI ===")
-status_tambah = model.create_reservasi(
-    id_user=1, 
-    id_lapangan=1, 
-    tanggal_reservasi="2026-10-15", 
-    jam_mulai="16:00:00", 
-    jam_selesai="18:00:00", 
-    total_harga=100000.00, 
-    status_reservasi="menunggu_pembayaran"
-)
-if status_tambah:
-    print("Data reservasi berhasil disimpan ke MySQL!")
+def test_models():
+    print("\n=== PENGUJIAN MODEL RESERVASI ===")
+    reservasi_list = ReservasiModel.get_all_reservasi()
+    print(f"Jumlah record reservasi ditemukan: {len(reservasi_list)}")
+    for r in reservasi_list[:3]:
+        print(f"[{r['id_reservasi']}] User ID: {r['id_user']} | Lapangan ID: {r['id_lapangan']} | Tanggal: {r['tanggal_reservasi']} | Status: {r['status_reservasi']}")
 
-print("\n=== PENGUJIAN 2: TAMPILKAN SELURUH RESERVASI ===")
-daftar = model.get_all_reservasi()
-for r in daftar:
-    print(f"[{r['id_reservasi']}] User: {r['nama_user']} | Lapangan: {r['nama_lapangan']} | "
-          f"Tanggal: {r['tanggal_reservasi']} | Jam: {r['jam_mulai']}-{r['jam_selesai']} | "
-          f"Total: Rp{r['total_harga']} | Status: {r['status_reservasi']}")
+if __name__ == "__main__":
+    test_database()
+    test_models()
