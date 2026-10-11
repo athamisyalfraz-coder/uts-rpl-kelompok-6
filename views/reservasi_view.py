@@ -3,24 +3,45 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import customtkinter as ctk
 from tkinter import ttk, messagebox
+from views.lapangan_view import LapanganView
+from views.pembayaran_view import PembayaranView
 from controllers.reservasi_controller import ReservasiController
 
-class ReservasiView(ctk.CTk):
+class DashboardView(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Sistem Informasi Reservasi Lapangan Badminton")
-        self.geometry("1000x560")
+        self.geometry("1100x650")
         ctk.set_appearance_mode("Dark")
 
+        # Membuat Tab Navigation Utama
+        self.tabview = ctk.CTkTabview(self)
+        self.tabview.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Menambahkan 3 Tab Utama
+        self.tab_reservasi = self.tabview.add("Kelola Reservasi")
+        self.tab_lapangan = self.tabview.add("Katalog Lapangan")
+        self.tab_pembayaran = self.tabview.add("Pembayaran")
+
+        # Load Frame Lapangan & Pembayaran ke dalam Tab masing-masing
+        self.view_lapangan = LapanganView(self.tab_lapangan)
+        self.view_lapangan.pack(fill="both", expand=True)
+
+        self.view_pembayaran = PembayaranView(self.tab_pembayaran)
+        self.view_pembayaran.pack(fill="both", expand=True)
+
+        # Load Form & Tabel Reservasi LENGKAP ke dalam Tab Reservasi
+        self.setup_tab_reservasi()
+
+    def setup_tab_reservasi(self):
         self.controller = ReservasiController()
 
-        # Layout Grid Utama (Kolom 0: Form Kiri, Kolom 1: Tabel Kanan)
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=2)
-        self.grid_rowconfigure(0, weight=1)
+        self.tab_reservasi.grid_columnconfigure(0, weight=1)
+        self.tab_reservasi.grid_columnconfigure(1, weight=2)
+        self.tab_reservasi.grid_rowconfigure(0, weight=1)
 
         # --- FRAME FORM (KIRI) ---
-        self.frame_form = ctk.CTkFrame(self)
+        self.frame_form = ctk.CTkFrame(self.tab_reservasi)
         self.frame_form.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         ctk.CTkLabel(self.frame_form, text="Form Reservasi", font=ctk.CTkFont(size=16, weight="bold")).pack(pady=10)
@@ -47,6 +68,7 @@ class ReservasiView(ctk.CTk):
         self.combo_status.set("menunggu_pembayaran")
         self.combo_status.pack(pady=5, fill="x", padx=10)
 
+        # Tombol Aksi Lengkap (Simpan, Update, Delete)
         self.btn_simpan = ctk.CTkButton(self.frame_form, text="Simpan Reservasi", fg_color="#28A745", hover_color="#218838", command=self.simpan_data)
         self.btn_simpan.pack(pady=8, fill="x", padx=10)
 
@@ -57,7 +79,7 @@ class ReservasiView(ctk.CTk):
         self.btn_delete.pack(pady=4, fill="x", padx=10)
 
         # --- FRAME TABEL (KANAN) ---
-        self.frame_table = ctk.CTkFrame(self)
+        self.frame_table = ctk.CTkFrame(self.tab_reservasi)
         self.frame_table.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
         cols = ("ID", "User", "Lapangan", "Tanggal", "Jam", "Total", "Status")
@@ -148,6 +170,9 @@ class ReservasiView(ctk.CTk):
             else:
                 messagebox.showerror("Error", msg)
 
+# Alias agar bisa di-import sebagai ReservasiView maupun DashboardView
+ReservasiView = DashboardView
+
 if __name__ == "__main__":
-    app = ReservasiView()
+    app = DashboardView()
     app.mainloop()
